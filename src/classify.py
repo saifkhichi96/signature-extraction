@@ -1,26 +1,26 @@
 """
 This script classifies the connected components as sigs or non-sigs and
 thus produces an output image of extracted signature
-Usage: python classify.py <images_path> <save_path>
+Usage: python classify.py <images_path> <save_path> <model>
 """
-from __future__ import print_function
-
 import os
 import sys
 
 import cv2
+import joblib
 import numpy as np
-from sklearn.externals import joblib
-
 import preprocess
-from components import extract_components, get_image_files
+
+from features import describe_image
+from tqdm import tqdm
+from utils import list_images
 
 
 def __annotate(image, components, classifier):
     image = np.copy(image)
 
     # Perform component analysis
-    for label, (des, idx) in components.items():
+    for (des, idx) in components:
         if des is not None:
             # Classify each descriptor of the component (to build consensus)
             rows = des.shape[0]
@@ -29,13 +29,9 @@ def __annotate(image, components, classifier):
                 predictions[row] = classifier.predict(des[row].reshape(1, -1))
 
             # Component marked signature only if >99% sure
-            votes_all = len(predictions)
-            votes_yes = np.count_nonzero(predictions)
-            confidence = 100.0 * votes_yes / votes_all
-            if confidence < 50:
+            confidence = np.count_nonzero(predictions) / len(predictions)
+            if confidence < 0.5:
                 image[idx] = 0
-        else:
-            image[idx] = 0
 
     return image
 
@@ -44,34 +40,31 @@ def prepare(filename, classifier):
     im = cv2.imread(filename, 0)
 
     # todo: crop bottom right of image where signature lies, according to our prior knowledge
-    w, h = im.shape
+    # w, h = im.shape
     # im = im[w / 2:w, int(0.60 * h):h]
     # w, h = im.shape
 
-    # Preprocess the image
-    im_binary = preprocess.otsu(im)
-    im_processed = preprocess.remove_lines(im_binary)
-    im_processed_cp = cv2.cvtColor(im_processed, cv2.COLOR_GRAY2BGR)
+    im_copy = cv2.cvtColor(im, cv2.COLOR_GRAY2BGR)
 
     # Perform component analysis
-    components = extract_components(im_processed, connectivity=8)
-    im_annotated = __annotate(im_processed, components, classifier)
-    im_annotated_cp = cv2.cvtColor(im_annotated, cv2.COLOR_GRAY2BGR)
+    components = describe_image(filename, preprocess=True)
+    im_annotated = __annotate(im, components, classifier)
+    im_annotated_copy = cv2.cvtColor(im_annotated, cv2.COLOR_GRAY2BGR)
 
     # Calculate mask
-    bg_idx = (im_processed_cp == 0)
-    fg_idx = (im_annotated_cp != 0)
+    bg_idx = (im_copy != 0)
+    fg_idx = (im_annotated_copy == 0)
 
     # Overlay mask on image
     im_masked = cv2.imread(filename)
 
     red_mask = np.zeros(im_masked.shape, np.uint8)
-    red_mask[:] = (0, 0, 255)
+    red_mask[:] = 255
 
-    # im_masked[bg_idx] = 255
+    im_masked[bg_idx] = 0
     im_masked[fg_idx] = red_mask[fg_idx]
 
-    return cv2.bitwise_not(im_annotated), cv2.cvtColor(im_masked, cv2.COLOR_BGR2RGB)
+    return im, im_masked
 
 
 def segment(image):
@@ -91,7 +84,7 @@ if __name__ == '__main__':
         exit(1)
 
     images_path = sys.argv[1]
-    files = get_image_files(images_path)
+    files = list_images(images_path)
     print("Classifying", len(files), "images.")
 
     save_path = sys.argv[2]
@@ -102,32 +95,33 @@ if __name__ == '__main__':
 
     failed = 0
     i = 0
-    for fn in files:
+    for fn in tqdm(files):
         i += 1
-        print("\rProcessing " + str(i) + "/" + str(len(files)) + " ... ", end="")
-        sys.stdout.flush()
 
-        im_processed, mask = prepare(fn, clf)
-        im_segmented = segment(im_processed)
+        try:
+            im_processed, mask = prepare(fn, clf)
+            mask = cv2.cvtColor(mask, cv2.COLOR_RGB2BGR)
+            # im_processed = segment(im_processed)
 
-        # write output image to output folder specified in commandline arguments
-        outfile = os.path.split(fn)[1]
-        outfile = os.path.splitext(outfile)[0] + ".png"
+            # write output image to output folder specified in commandline arguments
+            outfile = os.path.split(fn)[1]
+            outfile = os.path.splitext(outfile)[0] + ".png"
 
-        path = os.path.split(sys.argv[3])[1]
-        path = os.path.splitext(path)[0] + "/"
-        path = os.path.join(save_path, path)
+            path = os.path.split(sys.argv[3])[1]
+            path = os.path.splitext(path)[0] + "/"
+            path = os.path.join(save_path, path)
 
-        outfile = os.path.join(path, outfile)
-        if not os.path.exists(os.path.dirname(outfile)):
-            os.makedirs(os.path.dirname(outfile))
+            outfile = os.path.join(path, outfile)
+            if not os.path.exists(os.path.dirname(outfile)):
+                os.makedirs(os.path.dirname(outfile))
 
-        h, w = im_segmented.shape
-        if w == 0 or h == 0:
+            h, w, _ = mask.shape
+            if w == 0 or h == 0:
+                failed += 1
+            else:
+                cv2.imwrite(outfile, mask)
+        except Exception as ex:
+            print(ex)
             failed += 1
-        else:
-            cv2.imwrite(outfile, im_segmented)
-
-        print("(" + str(round(100.0 * i / len(files), 2)) + "% done)", end="")
 
     print("\nSignatures found in %d of %d documents." % (i - failed, i))

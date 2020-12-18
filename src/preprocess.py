@@ -102,8 +102,8 @@ def remove_lines(image, kernel=(25, 25)):
 
 
 def otsu(im):
-    original = cv2.bitwise_not(im)
-    smoothed = cv2.GaussianBlur(original, (35, 35), 0)
-    cv2.subtract(original, smoothed, im)
-    ret3, thresh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # original = cv2.bitwise_not(im)
+    # smoothed = cv2.GaussianBlur(original, (35, 35), 0)
+    # cv2.subtract(original, smoothed, im)
+    _, thresh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return thresh
