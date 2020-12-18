@@ -21,7 +21,7 @@ pip install -r requirements.txt
 kaggle datasets download -d saifkhichi96/bank-checks-signatures-segmentation-dataset
 mkdir data
 mkdir data/extraction/
-unzip bank-checks-signatures-segmentation-dataset.zip -d data/extraction/
+unzip bank-checks-signatures-segmentation-dataset.zip -d data/bcsd/
 ```
 
 ## References
