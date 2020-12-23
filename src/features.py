@@ -1,12 +1,11 @@
-import json
-import os
-
 import cv2
 import numpy as np
+import os
 
 from tqdm import tqdm
-from utils import list_images
-from preprocess import remove_lines, otsu
+
+from .preprocess import remove_lines, otsu
+from .utils import list_images
 
 
 def describe_image(image_f, connectivity=8, preprocess=False):
@@ -33,11 +32,8 @@ def describe_image(image_f, connectivity=8, preprocess=False):
         raise IOError(f'{image_f} could not be opened.')
 
     # Pre-process the image before extracting components
-    _, im = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    im = otsu(im)
     if preprocess:
-        # h,w = im.shape
-        # im[:int(h/2), :w] = 255
-        # im[:h, :int(w/2)] = 255
         im = remove_lines(im)
 
     # Find all connected components
@@ -88,30 +84,19 @@ def extract_features(path):
     return components
 
 
-if __name__ == '__main__':
-    with open('params.json') as json_file:
-        data = json.load(json_file)
+def features(train_dir, save_dir):
+    # Get list of all training classes
+    classes = [x for x in os.listdir(train_dir) if os.path.isdir(os.path.join(train_dir, x))]
+    print(f'Detected {len(classes)} Classes:', classes)
 
-        # Set dataset paths
-        data_dir = data['dataset']
-        train_dir = os.path.join(data_dir, data['train'])
-        test_dir = os.path.join(data_dir, data['test'])
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 
-        # Set output path (for saving extracted features)
-        save_dir = os.path.join(data['output'], 'features/')
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+    for cls in classes:
+        print(f'Extracting \'{cls}\' features...')
+        features = np.vstack(extract_features(os.path.join(train_dir, cls)))
+        print(f'{features.shape[0]} extracted')
 
-        # Get a list of all training classes
-        classes = [x for x in os.listdir(train_dir) if os.path.isdir(os.path.join(train_dir, x))]
-        print('Detected Classes:', classes)
-
-        for cls in classes:
-            print(f'Extracting \'{cls}\' features... ', end='')
-            features = np.vstack(extract_features(os.path.join(train_dir, cls)))
-            print(f'{features.shape[0]} found')
-
-            print('Saving extracted features... ', end='')
-            outfile = os.path.join(save_dir, f'{cls}.npy')
-            np.save(outfile, features)
-            print('Done')
+        print('Saving extracted features...')
+        outfile = os.path.join(save_dir, f'{cls}.npy')
+        np.save(outfile, features)

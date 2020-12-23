@@ -1,7 +1,0 @@
-{
-  "dataset": "../data/extraction/",
-  "train": "train/",
-  "test": "test/",
-
-  "output": "../out/"
-}

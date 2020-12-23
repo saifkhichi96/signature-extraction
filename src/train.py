@@ -1,14 +1,7 @@
-import json
-import os
-import time
-
 import joblib
 import numpy as np
-from datetime import datetime
-from sklearn.linear_model import SGDClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.svm import LinearSVC, SVC
+import os
+
 from sklearn.tree import DecisionTreeClassifier
 
 
@@ -29,43 +22,21 @@ def load_dataset(data_dir):
     y = np.vstack(y).ravel()
     return X, y
 
-if __name__ == '__main__':
-    with open('params.json') as json_file:
-        data = json.load(json_file)
+def train(data_dir, save_dir, outfile):
+    # Load the dataset
+    print('Reading the dataset... ')
+    X, y = load_dataset(data_dir)
+    assert X.shape[0] == y.shape[0]
+    print(f'{X.shape[0]} samples found\n')
 
-        # Set dataset path
-        data_dir = os.path.join(data['output'], 'features/')
+    # Train a decision tree classifier
+    print(f'Training classifier...')
+    clf = DecisionTreeClassifier()
+    clf.fit(X, y)
 
-        # Set output path (for saving trained features)
-        save_dir = os.path.join(data['output'], f'models/{time.time()}/')
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+    print(f'Saving trained model...')
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 
-        # Load the dataset
-        print('Reading the dataset... ')
-        X, y = load_dataset(data_dir)
-        assert X.shape[0] == y.shape[0]
-        print(f'{X.shape[0]} samples found\n')
-
-        # Create models to be trained
-        models = {
-            'mlp' : MLPClassifier(alpha=1),
-            'sgd' : SGDClassifier(),
-            'knn' : KNeighborsClassifier(),
-            'svc-rbf' : SVC(kernel='rbf'),
-            'svc-linear' : LinearSVC(),
-            'decision-tree' : DecisionTreeClassifier(),
-        }
-
-        # Train all models one-by-one
-        for name, clf in models.items():
-            print(f'Training {name}... ')
-            start = time.time()
-            clf.fit(X, y)
-            print(f'{time.time() - start} seconds\n')
-
-            print(f'Saving trained model... ')
-            start = time.time()
-            outfile = os.path.join(save_dir, f'{name}.pkl')
-            joblib.dump(clf, outfile)
-            print(f'{time.time() - start} seconds\n\n')
+    outfile = os.path.join(save_dir, f'{outfile}.pkl')
+    joblib.dump(clf, outfile)

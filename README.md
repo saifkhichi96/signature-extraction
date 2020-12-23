@@ -17,12 +17,9 @@ To run this project, execute the following commands once to set-up your environm
 python3 -m venv venv/
 source venv/bin/activate
 pip install -r requirements.txt
-
-kaggle datasets download -d saifkhichi96/bank-checks-signatures-segmentation-dataset
-mkdir data
-mkdir data/extraction/
-unzip bank-checks-signatures-segmentation-dataset.zip -d data/bcsd/
 ```
+
+Next, you will need to download the datasets from [here](#) and extract them in folder named `data` in the root of the project. Then, you can execute the [`example.py`][./example.py] script to see how the project works.
 
 ## References
 [1] Ahmed, S., Malik, M. I., Liwicki, M., & Dengel, A. (2012, September). Signature segmentation from document images. In 2012 International Conference on Frontiers in Handwriting Recognition (pp. 425-429). IEEE.

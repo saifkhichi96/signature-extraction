@@ -38,44 +38,6 @@ def remove_ylines(im):
     return lines
 
 
-def x_filling(im, x_lines):
-    h, w = im.shape
-    for r in x_lines:
-        for c in range(w):
-            try:
-                tpPx = im[r + 5, c]
-                crPx = im[r, c]
-                btPx = im[r - 5, c]
-
-                if crPx == 0 and tpPx != 0 and btPx != 0:
-                    for i in range(-5, 5):
-                        im[r + i, c] = 255
-            except:
-                # Ignore index out of bounds errors
-                pass
-
-    return im
-
-
-def y_filling(im, y_lines):
-    h, w = im.shape
-    for c in y_lines:
-        for r in range(h):
-            try:
-                rtPx = im[r, c + 5]
-                crPx = im[r, c]
-                ltPx = im[r, c - 5]
-
-                if crPx == 0 and ltPx != 0 and rtPx != 0:
-                    for i in range(-3, 4):
-                        im[c + i, r] = 255
-            except:
-                # Ignore index out of bounds errors
-                pass
-
-    return im
-
-
 def remove_lines(image, kernel=(25, 25)):
     # Make a copy (original image will be needed later)
     copy = np.copy(image)
@@ -89,10 +51,6 @@ def remove_lines(image, kernel=(25, 25)):
     ret3, copy = cv2.threshold(filter, 0, 255, \
                                cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    # Fill in any holes left by line removal
-    # copy = x_filling(copy, x_lines)
-    # copy = y_filling(copy, y_lines)
-
     # Guassian filtering for noise removal thickens all strokes
     # and filling can sometimes color pixels which were unfilled
     # in original image. These side effects are reversed by
@@ -102,8 +60,6 @@ def remove_lines(image, kernel=(25, 25)):
 
 
 def otsu(im):
-    # original = cv2.bitwise_not(im)
-    # smoothed = cv2.GaussianBlur(original, (35, 35), 0)
-    # cv2.subtract(original, smoothed, im)
-    _, thresh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    return thresh
+    blur = cv2.GaussianBlur(im, (5, 5), 0)
+    retval, im_binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    return np.bitwise_and(im, im_binary)

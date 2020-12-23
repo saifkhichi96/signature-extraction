@@ -3,17 +3,17 @@ This script classifies the connected components as sigs or non-sigs and
 thus produces an output image of extracted signature
 Usage: python classify.py <images_path> <save_path> <model>
 """
-import os
-import sys
-
 import cv2
 import joblib
 import numpy as np
-import preprocess
+import os
+import sys
 
-from features import describe_image
 from tqdm import tqdm
-from utils import list_images
+
+from . import preprocess
+from .features import describe_image
+from .utils import list_images
 
 
 def __annotate(image, components, classifier):
@@ -78,20 +78,14 @@ def segment(image):
     return image[y:y + h, x:x + w]
 
 
-if __name__ == '__main__':
-    if len(sys.argv) not in [4]:
-        print('Usage: python classify.py <images_path> <save_path> <model>')
-        exit(1)
-
-    images_path = sys.argv[1]
+def classify(images_path, save_path, model):
     files = list_images(images_path)
     print("Classifying", len(files), "images.")
 
-    save_path = sys.argv[2]
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    clf = joblib.load(sys.argv[3])
+    clf = joblib.load(model)
 
     failed = 0
     i = 0
@@ -107,7 +101,7 @@ if __name__ == '__main__':
             outfile = os.path.split(fn)[1]
             outfile = os.path.splitext(outfile)[0] + ".png"
 
-            path = os.path.split(sys.argv[3])[1]
+            path = os.path.split(model)[1]
             path = os.path.splitext(path)[0] + "/"
             path = os.path.join(save_path, path)
 
