@@ -22,7 +22,7 @@ def load_dataset(data_dir):
     y = np.vstack(y).ravel()
     return X, y
 
-def train(data_dir, save_dir, outfile):
+def train(data_dir, save_dir, outfile, criterion):
     # Load the dataset
     print('Reading the dataset... ')
     X, y = load_dataset(data_dir)
@@ -31,7 +31,7 @@ def train(data_dir, save_dir, outfile):
 
     # Train a decision tree classifier
     print(f'Training classifier...')
-    clf = DecisionTreeClassifier()
+    clf = DecisionTreeClassifier(criterion=criterion)
     clf.fit(X, y)
 
     print(f'Saving trained model...')

@@ -60,6 +60,7 @@ def remove_lines(image, kernel=(25, 25)):
 
 
 def otsu(im):
-    blur = cv2.GaussianBlur(im, (5, 5), 0)
-    retval, im_binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-    return np.bitwise_and(im, im_binary)
+    blur = cv2.GaussianBlur(im, (25, 25), 0)
+    im_bin_1 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,121,7)
+    im_bin_2 = cv2.adaptiveThreshold(im,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,35,2)
+    return np.bitwise_and(im_bin_1, im_bin_2)

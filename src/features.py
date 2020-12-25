@@ -32,6 +32,12 @@ def describe_image(image_f, connectivity=8, preprocess=False):
         raise IOError(f'{image_f} could not be opened.')
 
     # Pre-process the image before extracting components
+    if preprocess:
+        # Remove top and left halves of the image
+        h, w = im.shape
+        im[:int(h/2), :w] = np.mean(im[:int(h/2), :w])
+        im[:h, :int(w/2)] = np.mean(im[:h, :int(w/2)])
+
     im = otsu(im)
     if preprocess:
         im = remove_lines(im)
@@ -49,9 +55,12 @@ def describe_image(image_f, connectivity=8, preprocess=False):
         idx = np.where(labels == id)
 
         # Extract SURF features from the component
-        features = cv2.xfeatures2d.SURF_create()
-        features.setHessianThreshold(400)
-        _, descriptors = features.detectAndCompute(component, None)
+        surf = cv2.xfeatures2d.SURF_create(hessianThreshold=400,
+                                           nOctaves=4,
+                                           nOctaveLayers=3,
+                                           extended=True,
+                                           upright=True)
+        _, descriptors = surf.detectAndCompute(component, None)
 
         # Save descriptors and location of the component
         if descriptors is not None:
