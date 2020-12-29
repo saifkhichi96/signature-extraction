@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from .utils import list_images
+
 
 def iou(y_pred, y_true):
     intersection = np.count_nonzero(cv2.bitwise_and(y_pred, y_true))
