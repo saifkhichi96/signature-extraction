@@ -29,10 +29,10 @@ Then you can run the GUI app with `python3 src/extract_gui.py`.
 The repository comes with trained models in the `models/` folder. To train a new model with your own data, look at the [train_test.py](./src/train_test.py) script.
 
 ## References
-[1] Ahmed, S., Malik, M. I., Liwicki, M., & Dengel, A. (2012, September). Signature segmentation from document images. In 2012 International Conference on Frontiers in Handwriting Recognition (pp. 425-429). IEEE.
+1. Ahmed, S., Malik, M. I., Liwicki, M., & Dengel, A. (2012, September). Signature segmentation from document images. In 2012 International Conference on Frontiers in Handwriting Recognition (pp. 425-429). IEEE.
 
-[2] Soleimani, A., Fouladi, K., & Araabi, B. N. (2016). UTSig: A Persian offline signature dataset. IET Biometrics, 6(1), 1-8.
+2. Soleimani, A., Fouladi, K., & Araabi, B. N. (2016). UTSig: A Persian offline signature dataset. IET Biometrics, 6(1), 1-8.
 
-[3] Zhu, G., & Doermann, D. (2007, September). Automatic document logo detection. In Ninth International Conference on Document Analysis and Recognition (ICDAR 2007) (Vol. 2, pp. 864-868). IEEE.
+3. Zhu, G., & Doermann, D. (2007, September). Automatic document logo detection. In Ninth International Conference on Document Analysis and Recognition (ICDAR 2007) (Vol. 2, pp. 864-868). IEEE.
 
-[4] Zhu, G., Zheng, Y., Doermann, D., & Jaeger, S. (2007, June). Multi-scale structural saliency for signature detection. In 2007 IEEE Conference on Computer Vision and Pattern Recognition (pp. 1-8). IEEE.
+4. Zhu, G., Zheng, Y., Doermann, D., & Jaeger, S. (2007, June). Multi-scale structural saliency for signature detection. In 2007 IEEE Conference on Computer Vision and Pattern Recognition (pp. 1-8). IEEE.
