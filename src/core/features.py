@@ -1,11 +1,11 @@
-import cv2
-import numpy as np
 import os
 
+import cv2
+import numpy as np
 from tqdm import tqdm
 
-from .preprocess import remove_lines, threshold
 from utils import list_images
+from .preprocess import remove_lines, threshold
 
 
 def get_components(img, preprocess=False):
@@ -38,8 +38,8 @@ def get_components(img, preprocess=False):
         # Based on our prior knowlegde that signature is usually found in the
         # bottom-right quarter of the bank check, make rest of image white
         h, w = img.shape
-        img[:int(h/2), :w] = 0
-        img[:h, :int(w/2)] = 0
+        img[:int(h / 2), :w] = 0
+        img[:h, :int(w / 2)] = 0
 
         # Use a heuristic to try and remove horizontal lines from the image
         # This step is intended to remove the guidelines on bank checks
@@ -48,16 +48,15 @@ def get_components(img, preprocess=False):
     # Find all connected components
     count, labels, stats, _ = cv2.connectedComponentsWithStats(img, 8, cv2.CV_32S)
 
-
-    # For each indiviual component, do
+    # For each individual component, do
     components = []
-    for id in range(1, count): # (0 is background, so ignore)
+    for idx in range(1, count):  # (0 is background, so ignore)
         # Crop out the component
-        x, y, w, h = stats[id, 0], stats[id, 1], stats[id, 2], stats[id, 3]
-        component = img[y : y + h, x : x + w]
+        x, y, w, h = stats[idx, 0], stats[idx, 1], stats[idx, 2], stats[idx, 3]
+        component = img[y: y + h, x: x + w]
 
         # Locate pixels belonging to the component
-        idx = np.where(labels == id)
+        idx = np.where(labels == idx)
 
         # Extract SURF features from the component
         surf = cv2.xfeatures2d.SURF_create(hessianThreshold=400,
@@ -110,7 +109,7 @@ def extract(path, preprocess=False):
     return components
 
 
-def extract_features(dataset, preprocess=False, outdir=None):
+def extract_features(dataset, preprocess=False, out_dir=None):
     """Extract features from all images in a dataset.
 
     This function should be used to extract features for all classes in a
@@ -122,14 +121,14 @@ def extract_features(dataset, preprocess=False, outdir=None):
     is the number of classes.
 
     Extracted features can optionally be stored by passing in a path to save
-    the features in `outdir` parameter. Features will be saved as arrays in .npy
+    the features in `out_dir` parameter. Features will be saved as arrays in .npy
     files with names same as the class name.
 
     Parameters:
-        path (str) : Location of the input directory.
-        preprocess (bool) : Opttional. If this is True, image is preprocessed before
-                            feature extraction. Default is False.
-        outdir (str) : Optional. Save path for the feature arrays.
+        dataset (str) : Location of the input directory.
+        preprocess (bool) : If this is True, image is preprocessed before
+                            feature extraction. Default: False.
+        out_dir (str|None) : Save path for the feature arrays. Default: None.
 
     Returns:
         The dataset as (X, y) tuple, where X is the feature array and y is the
@@ -141,24 +140,24 @@ def extract_features(dataset, preprocess=False, outdir=None):
 
     X = []
     y = []
-    for id, c in enumerate(sorted(classes)):
+    for i, c in enumerate(sorted(classes)):
         # Extract features
         print(f'Extracting \'{c}\' features...')
         data = np.vstack(extract(os.path.join(dataset, c)))
         X.append(data)
 
         # Generate labels
-        labels = np.ones((data.shape[0], 1)) * id
+        labels = np.ones((data.shape[0], 1)) * i
         y.append(labels)
         print(f'{data.shape[0]} feature vectors extracted')
 
         # Save features and labels if specified
-        if outdir is not None:
+        if out_dir is not None:
             print('Saving extracted features...')
-            if not os.path.exists(outdir):
-                os.makedirs(outdir)
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
 
-        outfile = os.path.join(outdir, f'{c}.npy')
+        outfile = os.path.join(out_dir, f'{c}.npy')
         np.save(outfile, data)
 
     X = np.vstack(X)

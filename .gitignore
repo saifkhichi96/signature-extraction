@@ -1,10 +1,21 @@
-build/
-data/
-logs/
-out/
-venv/
+# Ignore IntelliJ IDEA project files
+.idea/
 
+# Ignore dataset files
+data/
+
+# Ignore compiled binary files
+build/
+out/
+
+# Ignore compiled Python files and virtual environments
 __pycache__/
 *.pyc
+venv/
 
+# Ignore log files
+logs/
+
+# Ignore OS cache files
 .DS_Store
+._*

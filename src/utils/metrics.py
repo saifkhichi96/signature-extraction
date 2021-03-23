@@ -9,9 +9,11 @@ def iou(y_pred, y_true):
     union = np.count_nonzero(cv2.bitwise_or(y_pred, y_true))
     return intersection / union
 
+
 def dice(y_pred, y_true):
     a = iou(y_pred, y_true)
-    return 2*a / (a+1)
+    return 2 * a / (a + 1)
+
 
 def jaccard_score(predictions, groundtruth):
     y_preds = list_images(predictions)
@@ -26,6 +28,7 @@ def jaccard_score(predictions, groundtruth):
         score.append(iou(y_pred, y_true))
 
     return np.mean(score)
+
 
 def f1_score(predictions, groundtruth):
     y_preds = list_images(predictions)

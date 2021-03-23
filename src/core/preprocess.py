@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def remove_xlines(im):
+def remove_lines_x(im):
     lines = []
 
     h, w = im.shape
@@ -20,7 +20,7 @@ def remove_xlines(im):
     return im, lines
 
 
-def remove_ylines(im):
+def remove_lines_y(im):
     lines = []
 
     h, w = im.shape
@@ -43,13 +43,12 @@ def remove_lines(image, kernel=(25, 25)):
     copy = np.copy(image)
 
     # Remove all lines (horizontal and vertical)
-    x_lines = remove_xlines(copy)
-    y_lines = remove_ylines(copy)
+    x_lines = remove_lines_x(copy)
+    y_lines = remove_lines_y(copy)
 
     # Remove noise (removes any parts of lines not removed)
-    filter = cv2.GaussianBlur(copy, kernel, 0)
-    ret3, copy = cv2.threshold(filter, 0, 255, \
-                               cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    blurred = cv2.GaussianBlur(copy, kernel, 0)
+    ret3, copy = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     # Guassian filtering for noise removal thickens all strokes
     # and filling can sometimes color pixels which were unfilled
@@ -61,6 +60,6 @@ def remove_lines(image, kernel=(25, 25)):
 
 def threshold(im):
     blur = cv2.GaussianBlur(im, (25, 25), 0)
-    im_bin_1 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,121,7)
-    im_bin_2 = cv2.adaptiveThreshold(im,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,35,2)
+    im_bin_1 = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 121, 7)
+    im_bin_2 = cv2.adaptiveThreshold(im, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 35, 2)
     return np.bitwise_and(im_bin_1, im_bin_2)

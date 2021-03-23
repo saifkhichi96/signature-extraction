@@ -1,13 +1,14 @@
 # import the necessary packages
+import time
+import tkinter as tk
+from tkinter import filedialog
+
 import cv2
 import joblib
 import numpy as np
-import tkinter as tk
-import time
+from PIL import Image, ImageTk
 
 from core import extract_signature
-from PIL import Image, ImageTk
-from tkinter import filedialog
 
 
 def resize(image, size):
@@ -49,13 +50,13 @@ def detect_signature():
         mask = extract_signature(im, clf, preprocess=True)
 
         im = cv2.imread(app.current_file)
-        im[np.where(mask==255)] = (0, 0, 255)
+        im[np.where(mask == 255)] = (0, 0, 255)
 
         # Draw bounding box on image
-        points = np.argwhere(mask==255)  # find where the black pixels are
-        points = np.fliplr(points)       # store them in x,y coordinates instead of row,col indices
+        points = np.argwhere(mask == 255)  # find where the black pixels are
+        points = np.fliplr(points)  # store them in x,y coordinates instead of row,col indices
         x, y, w, h = cv2.boundingRect(points)  # create a rectangle around those points
-        cv2.rectangle(im,(x,y),(x+w,y+h),(0,255,0),2)
+        cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
         app.show(im, app.input_view)
@@ -78,6 +79,7 @@ def open_image():
         src = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
         app.show(src, app.input_view)
         app.status("Step 2: Detect Signature")
+
 
 class SignatureExtractor:
 
@@ -106,7 +108,7 @@ class SignatureExtractor:
         # Create canvas where source image will be displayed
         self.input_view = tk.Label(mainframe)
         self.input_view.grid(row=1, column=0, columnspan=2)
-        self.show(np.ones((100, 100))*255, self.input_view)
+        self.show(np.ones((100, 100)) * 255, self.input_view)
 
         self.__status = tk.Label(mainframe, text="Step 1: Open an Image")
         self.__status.grid(row=2, column=0, sticky=tk.W)
