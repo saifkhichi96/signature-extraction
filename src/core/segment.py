@@ -3,6 +3,8 @@ import joblib
 import numpy as np
 import os
 
+from cv2 import bitwise_and as AND
+from cv2 import bitwise_or as OR
 from tqdm import tqdm
 
 from .features import get_components
@@ -48,7 +50,7 @@ def extract_signature(img, clf, preprocess=True):
     return mask
 
 
-def extract_signatures(dataset, outdir, model, preprocess=True):
+def extract_signatures(dataset, outdir, model, preprocess=True, useColor=False):
     """Extracts signatures from all images in the dataset.
 
     Segmentation masks for each input image are generated and saved in the
@@ -73,11 +75,35 @@ def extract_signatures(dataset, outdir, model, preprocess=True):
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
+    if not os.path.exists(outdir + "/masks/"):
+        os.makedirs(outdir + "/masks/")
+
     for image_f in tqdm(images):
-        im = cv2.imread(image_f, 0)
-        mask = extract_signature(im, clf)
+        if useColor:
+            im = cv2.imread(image_f)
+            b, g, r = cv2.split(im)
+            # mask_r = extract_signature(r, clf, preprocess)
+            mask = extract_signature(g, clf, preprocess)
+            # mask_b = extract_signature(b, clf, preprocess)
+            # mask = OR(OR(AND(mask_r, mask_g), AND(mask_g, mask_b)), AND(mask_b, mask_r))
+        else:
+            im = cv2.imread(image_f, 0)
+            mask = extract_signature(im, clf, preprocess)
 
         outfile = os.path.split(image_f)[1]
         outfile = os.path.splitext(outfile)[0] + ".png"
         outfile = os.path.join(outdir, outfile)
         cv2.imwrite(outfile, mask)
+
+        overlay = np.copy(im)
+        overlay[np.where(mask!=0)] = (0, 0, 255)
+
+        points = np.argwhere(mask!=0)  # find where the black pixels are
+        points = np.fliplr(points)       # store them in x,y coordinates instead of row,col indices
+        x, y, w, h = cv2.boundingRect(points)  # create a rectangle around those points
+        cv2.rectangle(overlay,(x,y),(x+w,y+h),(0,255,0),2)
+
+        outfile = os.path.split(image_f)[1]
+        outfile = os.path.splitext(outfile)[0] + ".png"
+        outfile = os.path.join(outdir + "/masks/", outfile)
+        cv2.imwrite(outfile, overlay)
