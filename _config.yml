@@ -8,3 +8,6 @@ logo: /assets/images/logo.png
 # page-specific customizations
 categories: Machine Learning
 demo: mSPeYTF9J4Q
+
+gems:
+  - jekyll-seo-tag
