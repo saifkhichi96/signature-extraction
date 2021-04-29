@@ -1,10 +1,10 @@
 remote_theme: saifkhichi96/simple-material
 
-baseurl: https://saifkhichi96.github.io # homepage url
-logo: /assets/images/logo.png # site logo
+title: Saif Khan
+tagline: Mobile Developer and ML Engineer
+baseurl: https://saifkhichi96.github.io
+logo: /assets/images/logo.png
 
 # page-specific customizations
-title: Signature Extraction
 categories: Machine Learning
-cover: /simple-material/_site/assets/img/photo.png
-icon: /simple-material/_site/assets/img/logo.png
+demo: mSPeYTF9J4Q
