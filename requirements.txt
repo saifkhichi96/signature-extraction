@@ -1,6 +1,6 @@
 joblib==1.0.0
 numpy==1.19.4
-opencv-contrib-python==3.4.2.17
+opencv-contrib-python==3.4.7.28
 opencv-python==3.4.2.17
 scikit-learn==0.24.0
 scipy==1.5.4
