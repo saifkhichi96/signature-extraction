@@ -1,3 +1,12 @@
+---
+layout: project
+categories: Machine Learning
+code: saifkhichi96/signature-extraction
+demo: mSPeYTF9J4Q
+drawer: true
+permalink: /index.html
+---
+
 # Extracting Signatures from Bank Checks
 
 ## Introduction

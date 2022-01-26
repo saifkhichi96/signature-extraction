@@ -1,0 +1,42 @@
+remote_theme: saifkhichi96/simple-material
+logo: /../assets/images/logo.png
+
+breadcrumbs: true
+navigation_footer: true
+
+# -----------------------------------------------------------------------------
+# Site Navigation
+# -----------------------------------------------------------------------------
+menu_main:
+  - title:                   Home
+    icon:                    roofing
+    url:                     /../
+  - title:                   About Me
+    icon:                    contact_page
+    url:                     /../resume/
+  - title:                   My Services
+    icon:                    design_services
+    url:                     /../services/
+  - title:                   Coding Projects
+    icon:                    cases
+    url:                     /../projects/
+  - title:                   Research Work
+    icon:                    science
+    url:                     /../research/
+  - title:
+  - title:                   Contact
+    url:                     /../contact/
+
+
+menu_social:
+  email:                   saifkhichi96@gmail.com
+  github:                  saifkhichi96
+  linkedin:                saifkhichi96
+  stackoverflow:           4690466
+  youtube:                 /channel/UCj4yPuKHi9pZ9WbKbfh5MEQ
+  playconsole:             7722501168179136426
+
+
+navigation_footer:         true
+breadcrubms:               true
+installable:               true
